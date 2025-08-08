@@ -1,90 +1,92 @@
 # CareerBoost AI
 
-AI-powered job matching, cover letter writing, and resume optimization app built with React, TypeScript, and Google's Gemini AI.
+AI-powered job matching, cover letter, and resume optimization (React + TypeScript + Gemini 1.5 Flash).
 
 ## Features
 
-- 🎯 **Smart Job Matching** - AI analyzes your CV against job descriptions
-- 📝 **Cover Letter Generation** - Creates personalized cover letters
-- 🔧 **Resume Optimization** - ATS-friendly resume tailoring
-- 💬 **AI Career Advisor** - Interactive chat for job application guidance
-- 📄 **Export Options** - Download as PDF or DOCX
+- 🎯 Smart Job Matching (CV ↔ Job Description)
+- 📝 Cover Letter Generation
+- 🔧 Resume Optimization (ATS-friendly)
+- 💬 AI Career Advisor (chat)
+- 📄 Export: PDF / DOCX
+- 🌍 i18n: en, tr (+ es, de, zh, ko, ja, ar)
 
-## Setup
+## Stack
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/careerboost-ai.git
-   cd careerboost-ai
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` and add your Gemini API key:
-   ```
-   VITE_GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-
-4. **Get your Gemini API key**
-   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Create a new API key
-   - Add it to your `.env` file
-
-5. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-## Usage
-
-1. **Add your profile** - Background, experience, and preferences
-2. **Add contact information** - Name, email, location, etc.
-3. **Upload your CV** - Paste text directly or upload PDF/Word file
-4. **Add job description** - Paste the job posting
-5. **Get AI analysis** - Job match recommendation and personalized advice
-6. **Generate documents** - Cover letters and optimized resumes
-
-## Tech Stack
-
-- **Frontend**: React 18, TypeScript, Tailwind CSS
-- **AI**: Google Gemini 2.0 Flash
-- **File Processing**: PDF.js, Mammoth.js
-- **Document Export**: jsPDF, docx
-- **Build Tool**: Vite
+- Frontend: React 18, TypeScript, Vite, Tailwind, react-i18next, zod
+- AI: Google Gemini 1.5 Flash via secure proxy
+- Dev Proxy: `server/dev-api.js` (Node http, in-memory rate limit)
+- Prod Proxy: `api/ai/proxy.js` (Vercel Functions) + Upstash rate limit (ops.)
+- Files: `pdfjs-dist` (PDF), `mammoth` (DOCX)
+- Analytics: GA4 (gtag, MI: `G-R2KKQRB75Z`)
+- Error monitoring: Sentry (optional)
 
 ## Project Structure
 
 ```
+api/                 # Vercel Functions (production AI proxy)
+server/dev-api.js    # Local dev API proxy (http://localhost:3001)
 src/
-├── components/          # React components
-├── services/           # AI services and API calls
-├── utils/              # Utility functions
-├── types/              # TypeScript type definitions
-└── config/             # Configuration files
+  components/        # UI components
+  services/          # AI services and orchestration
+  utils/             # helpers (errors, analytics, file processing)
+  locales/           # i18n resources
+  i18n.ts            # i18n init
+public/              # static assets (privacy.html, terms.html, robots.txt, sitemap.xml)
 ```
 
-## Important Notes
+## Setup (Local Dev)
 
-⚠️ **AI-Generated Content Disclaimer**: All outputs are AI-generated and should be reviewed before use.
+1) Install deps
+```bash
+npm install
+```
 
-🔒 **Privacy**: Your data is processed locally and sent to Google's Gemini AI for analysis.
+2) Create `.env.local`
+```env
+GEMINI_API_KEY=your_gemini_api_key
+# optional
+RATE_LIMIT_PER_MIN=20
+VITE_SENTRY_DSN=
+```
+
+3) Run
+```bash
+npm run dev
+# Web: http://localhost:5173
+# API: http://localhost:3001 (proxied via /api)
+```
+
+## Deployment (Vercel)
+
+Set project envs:
+
+- `GEMINI_API_KEY`
+- (optional) `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_MIN`
+- (optional) `VITE_SENTRY_DSN`
+
+Push to GitHub → Vercel deploy. Smoke test: CV/Job match/Chat/Export and 429 limit.
+
+## Analytics
+
+GA4 Measurement ID is embedded in `index.html` (`G-R2KKQRB75Z`). Replace if needed.
+
+## Legal & Privacy (MVP)
+
+- Publish: `public/privacy.html`, `public/terms.html` (and `public/imprint.html` if DE)
+- Cookies/Consent: informational banner if Ads/Analytics in use
+- PII logging disabled in production; CSP meta added (use real headers in prod)
+
+## Notes
+
+⚠️ AI content must be reviewed by the user.
+
+🔒 Data is processed locally and sent to Gemini for analysis.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+1) Fork repo → 2) Branch → 3) Code → 4) Test → 5) PR
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see LICENSE
